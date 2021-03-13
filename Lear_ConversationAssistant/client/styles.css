@@ -1,0 +1,64 @@
+html, body {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+button:hover{
+cursor:pointer;
+
+}
+
+header{
+margin:3rem;
+}
+
+main{
+margin:3rem;
+}
+
+#filterButtons{
+  margin:1rem;
+  margin-left:3rem;
+  display: flex;
+
+}
+
+.qContent span{
+  font-size:1rem;
+}
+
+#filterButtons div{
+  margin:1rem;
+  display: flex;
+
+}
+
+.questionDisplay{
+padding:1rem;
+margin:2rem;
+width:70%;
+border: 1px solid rgb(8, 181, 187);
+
+}
+
+.tab{
+  cursor:pointer;
+  font-weight: bold;
+  margin:1rem;
+}
+
+.tab:hover,.activeTab{
+  cursor:pointer;
+  color:rgb(8, 181, 187);
+  font-weight: bold;
+}
+
+.activeTab:hover{
+cursor:unset
+
+}
+
+
+

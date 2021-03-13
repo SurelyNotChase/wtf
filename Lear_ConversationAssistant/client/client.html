@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Conversation Assistant</title>
+  <link rel="stylesheet" type="text/css" href="/styles.css">
+
+
+  <script src="https://unpkg.com/vue@latest/dist/vue.js"></script>  <!-- Vue.js -->
+  <script src="./scripts.js" ></script>
+  <script>
+  
+  </script>
+
+</head>
+<body>
+
+	<div id="root">
+        
+        <header>
+        <h1> {{title}}</h1>
+	
+        
+            <span 
+				class="tab" 
+                :class="{ activeTab: selectedTab === tab}"
+                v-for="(tab, index) in tabs" :key="index"
+                @click="selectedTab = tab"
+				
+                > 
+                
+                {{ tab }} 
+            </span>
+			
+			<br>
+
+			
+
+		</header>
+    
+		<main>
+            <div v-show="selectedTab === 'View Questions'">
+               
+				<div id= filterButtons>
+					<div>
+						<input  type="radio" name= "filter" id="latestRadio"  value='latest' v-model='filter' v-on:change = sendGet>
+						<label for="latestRadio">Latest</label>
+					</div>
+					<br>
+					<div>
+						<input  type="radio" name= "filter" id="highestRadio"  v-model='filter' value='highest' v-on:change = sendGet>
+						<label for="highestRadio">Highest Rated</label>
+					</div>
+					<br>
+					<div>
+						<input  type="radio" name= "filter" id="oldestRadio"  v-model='filter' value='oldest' v-on:change = sendGet>
+						<label for="oldestRadio">Oldest</label>
+					</div>
+				</div>
+
+                <div v-for="question in questions" question="question" class='questionDisplay'>
+					
+					
+					
+					<div v-show="question.type === 'openEnded'">
+						<div class = 'qContent'> <h2>{{question.content}}</h2> <span> Upvotes: {{question.upvotes}}</span><br><br><span> Date: {{new Date(question.dateCreated)}}</span></div> 
+						<br>
+						<div>Posted by {{question.author}}</div>
+						<br>
+						<div class = 'replyArea'>
+							<label for="qResponseField"> Write a response: </label>
+							<textarea class = qResponseField cols="80" id="qResponseTextField" type="text" v-model="question.newResponse"></textarea>
+
+								<button @click = 'sendQReply(question)'>Submit Reponse</button>
+
+						</div>
+						<div class = 'prevResponses'>
+							
+							<div v-for="response in question.responses" response = 'response' >
+								<br>
+								>>> {{response}}
+							
+							</div>
+
+						</div>
+
+					</div>
+
+					<div v-show="question.type === 'multipleChoice'">
+						<div class = 'qContent'> <h2>{{question.content}}</h2> <span> Upvotes: {{question.upvotes}}</span><br><br><span> Date: {{new Date(question.dateCreated)}}</span></div>
+						<br>
+						<div>Posted by {{question.author}}</div>
+						<br>
+						<div class = 'multipleChoiceArea'>
+							
+							<div v-for="choice in question.choices" choice='choice'>
+								<input  type="radio" name= "choice"  :value='choice' @change = "sendMQReply(question,$event)" value='choice' >
+								<label >{{choice}}</label> <span class = 'answerCount'>[{{question.answers.filter(item=>item===choice).length}}]</span>
+							</div>
+							
+							
+
+						</div>
+					
+					</div>
+
+
+				</div>
+				
+
+            </div>
+    
+            <div v-show="selectedTab === 'Post a Question'">
+            
+                
+					<h3>Add a Question</h3>
+
+					<label for="authorField"> Your name: </label>
+					<br>
+					<input  id="authorField" type="text" v-model="newQuestion.author" ></input>
+					<br>
+					<br>
+
+					  <label for="questionField"> Write Question: </label>
+					  <br>
+					  <textarea cols="80" id="questionField" type="text" v-model="newQuestion.content" ></textarea>
+					  
+					  <br>
+					  <input class = 'typeSelector'  type="radio" name= "type" id="openEndedRadio" value="openEnded" v-model="newQuestion.type">
+					  <label for="openEndedRadio">Open Ended</label>
+					  <input class = 'typeSelector' type="radio" name= "type" id="multipleChoiceRadio" value="multipleChoice" v-model="newQuestion.type">
+					  <label for="multipleChoiceRadio">Multiple Choice</label>
+					  <br>
+					  <br>
+					  <div v-show="newQuestion.type === 'multipleChoice'">  
+
+						<label for="aField"> option A: </label>
+						<br>
+						<input  id="aField" type="text" v-model="newQuestion.choices[0]" ></input>
+						<br>
+
+						<label for="bField"> option B: </label>
+						<br>
+						<input  id="bField" type="text" v-model="newQuestion.choices[1]" ></input>
+						<br>
+
+						<label for="cField"> option C: </label>
+						<br>
+						<input  id="cField" type="text" v-model="newQuestion.choices[2]" ></input>
+						<br>
+
+						<label for="dField"> option D: </label>
+						<br>
+						<input  id="dField" type="text" v-model="newQuestion.choices[3]" ></input>
+						<br>
+						
+
+					  </div>
+				
+					  <br>
+					  <br>
+					  <div v-if="newQuestion.content">
+						  <div v-if="newQuestion.type === 'multipleChoice' && newQuestion.choices[0] && newQuestion.choices[1]">
+					  		<input id="sendButton" type="button" value="Ask Question" @click=sendPost />
+						</div>
+						<div v-if="newQuestion.type === 'openEnded'">
+							<input id="sendButton" type="button" value="Ask Question" @click=sendPost />
+						</div>
+					</v-if>
+					
+				  
+
+            
+
+            </div>
+
+            </div>
+
+			<div v-show="selectedTab === 'Edit Question List'">
+				
+
+                <div v-for="question in questions" question="question" class='questionDisplay'>
+					
+					<div v-show="question.type === 'openEnded'">
+						<div class = 'qContent'> <h2>{{question.content}}</h2> <span> Upvotes: {{question.upvotes}}</span><br><br><span> Date: {{new Date(question.dateCreated)}}</span></div> 
+						<br>
+						
+						<div class = 'prevResponses'>
+							
+							<div v-for="response in question.responses" response = 'response' >
+								<br>
+								{{response}}
+							
+							</div>
+							<button :value = 'removeQuestion=question' @click='sendAdminDelete(question)'>Remove</button>
+
+						</div>
+
+					</div>
+
+					<div v-show="question.type === 'multipleChoice'">
+						<div class = 'qContent'> <h2>{{question.content}} </h2></div>
+						<br>
+						<button :value = 'removeQuestion=question' @click='sendAdminDelete()'>Remove</button>
+					
+					</div>
+
+
+				</div>
+
+
+			</div>
+
+			<div v-show="selectedTab === 'Home'">
+			Welcome home!
+			<p>Go to <a href="/questions">/questions</a> to see the data.</p>
+			</div>
+
+		</main>
+    
+        
+        
+
+    </div>
+
+  
+  <section id="content"></section>
+</body>
+</html>
